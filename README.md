@@ -1,12 +1,12 @@
-# [PROJECT NAME]
+# [Non-commercial Catch Estimation for MHI Deep7 Bottomfish]
 
-## Overview
+## The repository includes R scripts for the non-coomercial catch estimation for a paper (Ma et al. 2023) published in the 2023 Joint Statisitical Meeting Proceedings and for some explorations for NOAA Fisheries Pacific Islands Fisheries Science Center's Deep7 Bottomfish Research Track.
 
 ## Prerequisites
 
 ## Installing
 
-## Resources
+## Ma, H., and Ogawa, T. (2016). Hawaii Marine Recreational Fishing Survey: A Summary of Current Sampling, Estimation, and Data Analyses. NOAA Tech. Memo., NOAA-TM-NMFS-PIFSC-55, 43 p. Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.
 
 ## Version Control Platform
 - Git
