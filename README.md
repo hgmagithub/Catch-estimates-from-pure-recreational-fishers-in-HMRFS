@@ -1,4 +1,4 @@
-# [Non-commercial Catch Estimation for MHI Deep7 Bottomfish]
+# Non-commercial Catch Estimation for MHI Deep7 Bottomfish
 
 ## The repository includes R scripts for the non-coomercial catch estimation for a paper (Ma et al. 2023) published in the 2023 Joint Statisitical Meeting Proceedings and for some explorations for NOAA Fisheries Pacific Islands Fisheries Science Center's Deep7 Bottomfish Research Track.
 
