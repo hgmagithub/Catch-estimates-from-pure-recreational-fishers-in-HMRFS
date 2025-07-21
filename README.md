@@ -6,7 +6,8 @@
 
 ## Installing
 
-## Ma, H., and Ogawa, T. (2016). Hawaii Marine Recreational Fishing Survey: A Summary of Current Sampling, Estimation, and Data Analyses. NOAA Tech. Memo., NOAA-TM-NMFS-PIFSC-55, 43 p. Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.
+## Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.  
+Ma, H., and Ogawa, T. (2016). Hawaii Marine Recreational Fishing Survey: A Summary of Current Sampling, Estimation, and Data Analyses. NOAA Tech. Memo., NOAA-TM-NMFS-PIFSC-55, 43 p.
 
 ## Version Control Platform
 - Git
