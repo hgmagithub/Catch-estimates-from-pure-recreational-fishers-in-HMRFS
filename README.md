@@ -1,9 +1,9 @@
-# Non-commercial Catch Estimation for MHI Deep7 Bottomfish
+# Improved partitioning of commercial and non-commercial Deep7 bottomfish catch in the main Hawaiian Islands
 
-## The repository includes R scripts for the non-coomercial catch estimation for a paper (Ma et al. 2023) published in the 2023 Joint Statisitical Meeting Proceedings and for some explorations for NOAA Fisheries Pacific Islands Fisheries Science Center's Deep7 Bottomfish Research Track.
+## The repository includes R scripts for the non-coomercial catch estimation for a paper (Ma et al. 2023) published in the 2023 Joint Statisitical Meeting Proceedings and for some explorations for the Deep7 Bottomfish Research Track.
 
-## Prerequisites
-
+## Background
+Data from the Hawaii Marine Recreational Fishing Survey (HMRFS) were used to obtain non-commercial catch. Non-commercial catch was estimated as the product of the catch rate and fishing effort, and adjustments were made to both components to exclude fishing trips that were not entirely recreational from the HMRFS data. By estimating only non-commercial catch, values could be combined with mandatory commercial fishing reports to estimate total catch for the stock assessment. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers (who sometimes sell fish to cover fishing expenses) and part-time commercial fishers was excluded, as these fishers must report all catch in the commercial reporting system, even if only a portion is sold. Fishing effort estimates (derived from telephone and mail surveys) were also adjusted to exclude trips from expense and part-time commercial fishers. The non-commercial catch estimates from this study in combination with the catch captured in commercial fishing reports may better define total fish removal for future Deep7 bottomfish stock assessments. 
 ## Installing
 
 ## Resources
