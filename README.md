@@ -5,6 +5,7 @@
 ## Background
 Data from the Hawaii Marine Recreational Fishing Survey (HMRFS) were used to obtain non-commercial catch. Non-commercial catch was estimated as the product of the catch rate and fishing effort, and adjustments were made to both components to exclude fishing trips that were not entirely recreational/non-commercial from the HMRFS data. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers (who sometimes sell fish to cover fishing expenses) and part-time commercial fishers was excluded, as these fishers must report all catch in the commercial reporting system, even if only a portion is sold. Fishing effort estimates (derived from telephone and mail surveys) were also adjusted to exclude trips from expense and part-time commercial fishers. The non-commercial catch estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
 ## Installing
+R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
 
 ## Resources
 Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.  
