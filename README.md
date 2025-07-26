@@ -4,14 +4,14 @@
 
 ## Summary
 For the Deep7 bottomfish research track, adjustments were made to both catch rate and fishing effort to exclude fishing trips that were not entirely recreational/non-commercial from the HMRFS data. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers and part-time commercial fishers was also excluded. Fishing effort estimates (derived from telephone and mail surveys) were adjusted to exclude trips from expense and part-time commercial fishers. The estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
-## Data and Results
+## Data and Scripts
 
 ## Installing
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
 
 ## Resources
- Github repository
-
+Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings
+https://github.com/hgmagithub/Non-commercial-Catch-Estimation-for-Deep7-Bottomfish-in-the-Main-Hawaiian-Islands
 
 ## Version Control Platform
 - Git
