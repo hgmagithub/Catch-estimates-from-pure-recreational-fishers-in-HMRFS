@@ -1,17 +1,17 @@
 # Improved partitioning of commercial and non-commercial Deep7 bottomfish catch in the main Hawaiian Islands
 
-## The repository includes R scripts for the non-coomercial catch estimation for a paper (Ma et al. 2023) published in the 2023 Joint Statisitical Meeting Proceedings and for some explorations for the Deep7 Bottomfish Research Track.
+
 
 ## Summary
-Data from the Hawaii Marine Recreational Fishing Survey (HMRFS) were used to obtain non-commercial catch. Non-commercial catch was estimated as the product of the catch rate and fishing effort (see Ma et al. 2023). For the Deep7 bottomfish research track, adjustments were made to both components to exclude fishing trips that were not entirely recreational/non-commercial from the HMRFS data. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers (who sometimes sell fish to cover fishing expenses) and part-time commercial fishers was excluded, as these fishers must report all catch in the commercial reporting system, even if only a portion is sold. Fishing effort estimates (derived from telephone and mail surveys) were also adjusted to exclude trips from expense and part-time commercial fishers. The non-commercial catch estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
+For the Deep7 bottomfish research track, adjustments were made to both catch rate and fishing effort to exclude fishing trips that were not entirely recreational/non-commercial from the HMRFS data. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers and part-time commercial fishers was also excluded. Fishing effort estimates (derived from telephone and mail surveys) were adjusted to exclude trips from expense and part-time commercial fishers. The estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
 ## Data and Results
 
 ## Installing
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
 
 ## Resources
-Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.  
-Ma, H., and Ogawa, T. (2016). Hawaii Marine Recreational Fishing Survey: A Summary of Current Sampling, Estimation, anmad Data Analyses. NOAA Tech. Memo., NOAA-TM-NMFS-PIFSC-55, 43 p.
+ Github repository
+
 
 ## Version Control Platform
 - Git
