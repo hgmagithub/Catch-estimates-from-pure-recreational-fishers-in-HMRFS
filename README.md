@@ -13,10 +13,15 @@ For the Deep7 bottomfish research track, adjustments were made to both catch rat
 
 ## R Script and Data Input   
 The R script was modified from Ma et al. 2023. When "catch_type" is set as "Non-sold catch', the non-commercial catch estimates presented in Ma et al. (2023) can be reproduced. The catch estimates in the current exploration are provided when catch type is set as "Pure recreational". The data input includes
+
 a) i1-i3 files: trip profile, unavaialble catch, and available (observed) catch used to estimate catch rate and variance of catch rate
+
 b) Pure recreational fishers: ID code of pure recreational fishers in the survey data (based on 2003-2011 Access survey data 2011-2022 SAS survey data) used to filter out recreational expense fishers and part-time commercial fishers
+
 c) Fishing effort time series: the fishing effort estimates in 2003-2022 used to estimate catch (as the product of catch rate and fishing effort)
+
 d) Mean weight: the mean weight estimates for 7 bottomfish species used to convert catch number to catch weight
+
 e) Multiplier: the adjustments for fishing effort calibration due to telphone survey to mail survey transition (M1), correction for an error in Maui population tally in 2003-2010 (M2), and proportion of pure recreational fishing trips (M3)
 
 ## Installing
