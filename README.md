@@ -26,7 +26,6 @@ e) Multiplier: the adjustments for fishing effort calibration due to telphone su
 
 ## Installing
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
-can be
 ## Resources
 Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings and for the 2024 Deep7 bottomfish benchmark stock assessement
 https://github.com/hgmagithub/Non-commercial-Catch-Estimation-for-Deep7-Bottomfish-in-the-Main-Hawaiian-Islands
