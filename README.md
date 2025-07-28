@@ -29,6 +29,8 @@ R packages including "sas7bdat" (to read SAS data files), "this.path" (file mana
 ## Resources
 Link to HMRFS survey data https://drive.google.com/drive/folders/1K8TpVk9sllgyhfd2VnX5WWBJgN1fc2fU
 
+Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch Estimation for Deep7 Bottomfish in the Main Hawaiian Islands. In: Joint Statistical Meetings 2023. Toronto, Canada. https://doi.org/10.5281/zenodo.8388018.
+
 Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings and for the 2024 Deep7 bottomfish benchmark stock assessement
 https://github.com/hgmagithub/Non-commercial-Catch-Estimation-for-Deep7-Bottomfish-in-the-Main-Hawaiian-Islands
 
