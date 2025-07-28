@@ -1,3 +1,5 @@
+
+# ------- Section 1: Setup and Data Loading ------------
 remove(list=ls())
 library(sas7bdat)
 library(zoo)
@@ -5,35 +7,49 @@ library(KFAS)
 library(this.path)
 root_dir <- here(..=1)
 
-
-# ***I**** Read the original SAS data files and manipulate files (filtering out sellers and sold catch) for Deep7 research explorations 
-# The original SAS data files are included and the explorations (with original data file) for the 2024 stock assessment can be viewed as well
-#i1 = read.sas7bdat(file.path(root_dir, "01_Data", "i1_c_add2022f.sas7bdat", debug = TRUE)) 
-i1 = read.sas7bdat(file.path(root_dir, "01_Data", "i1_c_add2022f.sas7bdat")) 
+# *** Read the original SAS data files and manipulate files (filtering out sellers and sold catch) for Deep7 research explorations 
+i1 = read.sas7bdat(file.path(root_dir, "01_Data", "i1.sas7bdat")) 
 # trip and fisher profile data, 59080 records 
-observed_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i3_c_add2022f.sas7bdat"))
-unavailable_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i2_c_add2022f.sas7bdat")) 
-nonsell = read.sas7bdat(file.path(root_dir, "01_Data", "nonseller_andna.sas7bdat"))
-#read the SAS files (52758 ID_CODEs) for fishers whose didn't not ever sell catch (52702) or who cannot be identified as commercial fishers (56)
-i1 <- i1[i1$ID_CODE %in% nonsell$ID_CODE,] 
-# records from 59080 to 52758
-observed_catch <- observed_catch[observed_catch$DISP3 %in% c(3,4,6,7,8,9,0),]
-# exclude disposition 5 (sold/to be sold), records from 22914 to 19947
-unavailable_catch <- unavailable_catch[unavailable_catch$DISPO %in% c(1,2,3,4,6,7,8,9,0),] 
-# exclude disposition of 5, records from 17915 to 15963
-observed_catch <- observed_catch[observed_catch$ID_CODE %in% nonsell$ID_CODE,]
-# records from 19947 to 17140
-unavailable_catch <- unavailable_catch[unavailable_catch$ID_CODE %in% nonsell$ID_CODE,] #15963 to 13859
+observed_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i3.sas7bdat"))
+unavailable_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i2.sas7bdat")) 
+nonsellers = read.sas7bdat(file.path(root_dir, "01_Data", "Nonsellers.sas7bdat"))
+#read the SAS file (52758 ID_CODEs) for fishers whose didn't not ever sell catch (52702) or cannot be identified as selling (56)
 
+catch_type <- "Pure recreational"
+#default is "Pure recreational" for Deep7 research track, can be assigned as "Non-sold catch" for 2024 stock assessment or "Total catch" for comparing with MRIP query
+if(catch_type=="Pure recreational") {
+  i1 <- i1[i1$ID_CODE %in% nonsellers$ID_CODE,] # records from 59080 to 52758
+  # Only trip and fisher profile data are kept from fisher who did not ever sell any catch
+}
+if(catch_type=="Non-sold catch"){
+  observed_catch <- observed_catch[observed_catch$DISP3 %in% c(3,4,6,7,8,9,0),]
+  # exclude disposition 5 (sold/to be sold), records from 22914 to 19947
+  unavailable_catch <- unavailable_catch[unavailable_catch$DISPO %in% c(1,2,3,4,6,7,8,9,0),] 
+  # exclude disposition of 5, records from 17915 to 15963
+}
 
-# *****II***** Create species data frame for Deep7 with name and parameters for length-weight regression 
-# The original script try to separate catch to be sold vs not to be sold which are not necessary when the sold catch have been filtered out for Deep7 research track
+if(catch_type=="Pure recreational"){
+  observed_catch <- observed_catch[observed_catch$DISP3 %in% c(3,4,6,7,8,9,0),]
+  # exclude disposition 5 (sold/to be sold), records from 22914 to 19947  
+  observed_catch <- observed_catch[observed_catch$ID_CODE %in% nonsellers$ID_CODE,]
+  # exclude catch records from sellers, # of records from 19947 to 17140
+  unavailable_catch <- unavailable_catch[unavailable_catch$DISPO %in% c(1,2,3,4,6,7,8,9,0),] 
+  # exclude disposition of 5, records from 17915 to 15963
+  unavailable_catch <- unavailable_catch[unavailable_catch$ID_CODE %in% nonsellers$ID_CODE,]
+  # exclude catch records from sellers, records from 15963 to 13859
+}
+
+# ********* Create species data frame for Deep7 with names and parameters for length-weight regression 
 species_df = data.frame("key" = c(8835020413, 8835360304, 8835360302, 8835360704, 8835360706, 8835360901, 8835360707),
                         "common_name" = c("HAWAIIAN GROUPER", "LONGTAILED RED SNAPPER", "RUBY SNAPPER", "PINK SNAPPER", "VON SIEBOLDS SNAPPER", "IRONJAW SNAPPER", "BINGHAMS SNAPPER"),
                         "hawaiian_name" = c("Hapu'upu'u", "Onaga", "Ehu", "Opakapaka", "Kalekale", "Lehi", "Gindai"),
                         "alpha" = c(2.884, 2.673, 3.026, 2.928, 2.932, 2.458, 2.859), # for conversion from length (cm) to weight
                         "beta" = c(3.065*10^-5, 6.005*10^-5, 1.551*10^-5, 2.311*10^-5, 2.243*10^-5, 1.298*10^-4, 3.526*10^-5)) # for conversion from length (cm) to weight
 
+
+
+# ------------------- Section 2: Data Pre-Processing and Structuring ------------------------
+#This section cleans the raw data, creates new variables, and initializes the multi-dimensional arrays that will store survey data and calculated results.
 # for mode: index 1 = private boat, 2 = shore
 #i1$mode = ifelse(i1$MODE_F == 8, 1, ifelse(i1$MODE_FX %in% 1:5, 2, NA))
 i1$mode = ifelse(i1$MODE_F == 8, 1, ifelse(i1$MODE_F %in% 1:5, 2, NA)) # Ma changed MODE_FX to MODE_F in ifsle(....)
@@ -42,8 +58,8 @@ i1$area_exp = ifelse(i1$AREA_X == 2, 1, ifelse(i1$AREA_X == 1, 2, ifelse(i1$AREA
 
 observed_catch = observed_catch[observed_catch$DISP3 %in% c(3,4,5,6,7,8,9,0) & observed_catch$MODE_F != 7,] # fish that were not released and not from a charter trip, 8=don't know/didn't ask
 unavailable_catch = unavailable_catch[unavailable_catch$DISPO %in% c(3,4,5,6,7,8,9,0) & unavailable_catch$MODE_F != 7,] # fish that were not released and not from a charter trip
-# added disp "8" on Mar12, 2025 to compare with SAS results
-# for disposition: index 1 = sold, 2 = not sold
+# added DISPO "8" on Mar12, 2025
+# for disposition: index 1 = sold, 2 = not sold, which are different from DISP3 (catch disposition, 0 to 9, for observed catch) and DISPO (catch disposition for unavailable catch)
 observed_catch$sold = ifelse(observed_catch$DISP3 == 5, T, F)
 unavailable_catch$sold = ifelse(unavailable_catch$DISPO == 5, T, F)
 
@@ -58,8 +74,7 @@ observed_catch$EST_WGT = sapply(1:nrow(observed_catch), function(f) { # estimate
   }
 })
 
-
-#******III******Create arrays and assign survey data into arrays*****
+#**********Create arrays for assigning survey data*****
 #years = sort(unique(c(observed_catch$YEAR, unavailable_catch$year)), decreasing = F) # unique years with data
 years = sort(unique(c(observed_catch$YEAR, unavailable_catch$YEAR)), decreasing = F) # unique years with data
 trips = unique(i1[!is.na(i1$mode) & !is.na(i1$ID_CODE),]$ID_CODE)
@@ -104,6 +119,9 @@ total_weight = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas))
 unavailable_caught_by_trip = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas, n_trips))
 unavailable_total_caught = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas, n_dispositions))
 
+
+# ----------- Section 3: Main Data Aggregation Loop --------------------
+#This is the core of the script, where it iterates through every unique trip to aggregate catch and effort data into the pre-defined strata.
 for(t in 1:n_trips) {
   trip = trips[t]
   year = as.numeric(substr(trip, 6, 9))
@@ -132,36 +150,16 @@ for(t in 1:n_trips) {
         
         observed_s = observed[observed$SP_CODE == species[i],]
         
-        observed_caught_by_trip[y, w, s, m, a, t] = max(observed_s$FSHINSP) # ****max picks the largest FSHINSP from a trip (for a species)
+        observed_caught_by_trip[y, w, s, m, a, t] = max(observed_s$FSHINSP) # ****max picks the largest FSHINSP from records for a species in a trip
+        # There should be only one catch disposition for a species in a trip for observed catch
+        # There can be multiple records for a species in a trip but the catch number was the same for each record (multiple records are for length and weight measurements)
         
         if(all(observed_s$sold)) {
           observed_total_caught[y, w, s, m, a, 1] = observed_total_caught[y, w, s, m, a, 1] + max(observed_s$FSHINSP)
         } else if(any(!observed$sold)) { # using this "else if" will cause observed counts for a single species with multiple dispositions in a single trip to all be counted as non-sold
           observed_total_caught[y, w, s, m, a, 2] = observed_total_caught[y, w, s, m, a, 2] + max(observed_s$FSHINSP) # ***max picks one value (the largest), multiple non-sold dispos for pelagic??
         } 
-#        else if(any(observed$sold)) { # using this "else if" will cause observed counts for a single species with multiple dispositions in a single trip to all be counted as sold
-#          observed_total_caught[y, w, s, m, a, 1] = observed_total_caught[y, w, s, m, a, 1] + max(observed_s$FSHINSP)
-#        }
-#        else { # using this "else" will cause observed counts for a single species with multiple dispositions in a single trip to be distributed between sold and non-sold according to the relative number of entries for each disposition
-          # there are 7 instances where there are multiple dispositions within the same interview/species
-          # in each case there is a row for each fish caught, but this could potentially not be the case
-          # e.g. ID_CODE = 1700920031105001, SP_CODE = 8835360704
-#          count_sold = 0
-#          count_unsold = 0
-          
-#          for(j in 1:nrow(observed_s)) {
-#            r = observed_s[j,]
-#            if(r$sold) {
-#              count_sold = count_sold + 1
-#            } else {
-#              count_unsold = count_unsold + 1
-#            }
-            
-#            observed_total_caught[y, w, s, m, a, 1] = observed_total_caught[y, w, s, m, a, 1] + max(observed_s$FSHINSP) * count_sold / (count_sold + count_unsold)
-#            observed_total_caught[y, w, s, m, a, 2] = observed_total_caught[y, w, s, m, a, 2] + max(observed_s$FSHINSP) * count_unsold / (count_sold + count_unsold)
-#          }
-#        }
-        #**** Ma noted 5 instances (ehu 2 times in 2007, paka, 2 in 2003 and 1 in 2010) where there were multiple dispositions
+
         for(j in 1:nrow(observed_s)) {
           r = observed_s[j,]
           
@@ -197,14 +195,7 @@ for(t in 1:n_trips) {
         
         unavailable_caught_by_trip[y, w, s, m, a, t] = max(unavailable_s$NUM_FISH) #***max works for deep7 where only 1 disp present for a sp in an interview and it works for Deep7 (may use sum)
         
-        # The code below assumes only one row for each specie within each trip, and only takes the maximum number of fish caught from among the rows in the one such instance.
-        #if(all(unavailable_s$sold)) {
-        #  unavailable_total_caught[y, w, s, m, a, 1] = unavailable_total_caught[y, w, s, m, a, 1] + max(unavailable_s$NUM_FISH)
-        #} else if(any(unavailable_s$sold)) {
-        #  unavailable_total_caught[y, w, s, m, a, 2] = unavailable_total_caught[y, w, s, m, a, 2] + max(unavailable_s$NUM_FISH)
-        #}
-        
-        # There is an instance of two rows for the same specie within a single trip (ID_CODE = 1701620190402001, SP_CODE = 8835360704). The below code counts both rows, each with 7 fish.
+
         for(j in 1:nrow(unavailable_s)) {
           r = unavailable_s[j,]
           
@@ -218,14 +209,18 @@ for(t in 1:n_trips) {
     }
   }
 }
-# mean weight was calculated with unfiltered catch records (including sold catch), the mean weight values estimated here are not used
+
+
+
+# --------------- Section 4: CPUE, Variance, and Total Catch Calculation ------------------
+# mean weight was calculated with unfiltered catch records (including sold catch), the mean weight values estimated for non-sold catch or pure recreational  are not used
 mean_weight_wave = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas)) # mean weight by wave within year
 mean_weight_year = array(0, dim = c(n_years, n_species, n_modes, n_areas)) # mean weight by year
 mean_weight_all = array(0, dim = c(n_species)) # mean weight across years
+#This section calculates the key metrics: mean weight, CPUE (catch rate), the variance of the CPUE, and finally, the total catch by combining CPUE with effort data.
+# Setting up arrays to compute summary statistics
 
-
-
-#*********IV****Calculate catch rate*********
+#*************Calculate catch rate*********
 catch_rate = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas)) # CPUE in catch number per angler trip
 
 for(s in 1:n_species) {
@@ -236,6 +231,7 @@ for(s in 1:n_species) {
   catch_rate[, , s, , ] = apply(observed_total_caught[, , s, , , ], c(1, 2, 3, 4), sum) / apply(anglers_by_trip, c(1, 2, 3, 4), sum) + apply(unavailable_total_caught[, , s, , , ], c(1,2,3,4), sum)/apply(num_trips, c(1,2,3,4), sum)
 }
 catch_rate[is.nan(catch_rate)] = 0 
+catch_rate[is.na(catch_rate)] = 0
 catch_rate[18, 3, , , ] = (catch_rate[17, 3, , , ]+catch_rate[16,3,,,])/2 # No data available for April - June 2020 because of Covid, so use catch rate from same wave 3 (May + June) in 2019 & 2018 for wave 3 in 2020
 catch_rate[18, 2, , , ] = (catch_rate[17, 2, , , ]+catch_rate[16,2,,,])/2 # incomplete data in March-April2020
 #catch_rate[is.nan(catch_rate)] = 0 
@@ -251,19 +247,12 @@ for(y in 1:n_years) {
         for(a in 1:n_areas) {
           unavailable_catch_rate = sum(unavailable_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]
           unavailable_catch_rate_var[y, w, s, m, a] = 1 / num_trips[y, w, m, a] * sum((unavailable_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]] - unavailable_catch_rate) ^ 2 / (num_trips[y, w, m, a] - 1)) #added domain_trips for catch by Ma
-          # unavailable_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ] only include the catch_by_trip for trips in the domain!
-          observed_catch_rate = (sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]) / mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) #the catch rate of observed catch is ratio of two means
-          #observed_catch_rate_var[y, w, s, m, a] = 1 / (num_trips[y, w, m, a] * mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) ^ 2) * (var(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]]) + (sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]) ^ 2 * var(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) - 2 * sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a] * cov(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]], anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]))
-          #observed_catch_rate_var[y, w, s, m, a] = 1 / (num_trips[y, w, m, a] * mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) ^ 2) * (var(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]]) + (sum(observed_total_caught[y, w, s, m, a, ]) / sum(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]])) ^ 2 * var(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) - 2 * sum(observed_total_caught[y, w, s, m, a, ]) / sum(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]])*cov(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]], anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]))
+          # unavailable_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ] only keep the catch_by_trip for trips in the domain so that variance can be properly calculated.
+          observed_catch_rate = (sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]) / mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) 
+          #the catch rate of observed catch is ratio of two means and is plugged in for the variance calculation below - Ma comment in 2025 
           observed_catch_rate_var[y, w, s, m, a] = 1 / (num_trips[y, w, m, a] * mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) ^ 2) * (var(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]]) + observed_catch_rate ^ 2 * var(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) - 2 * observed_catch_rate*cov(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]], anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]))
-          # Refer to the last equation on page 6 of Ma and Ogawa 2016
-          #y_bar = mean(observed_caught_by_trip[y, w, s, m, a, ])#sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]
-          #x_bar = mean(anglers_by_trip[y, w, m, a, ])
-          #var_y = var(observed_caught_by_trip[y, w, s, m, a, ])#var(observed_total_caught[y, w, s, m, a, ]) / (num_trips[y, w, m, a] ^ 2)
-          #var_x = var(anglers_by_trip[y, w, m, a, ])
-          #cov_xy = cov(observed_caught_by_trip[y, w, s, m, a, ], anglers_by_trip[y, w, m, a, ])
-          #observed_catch_rate_var = (y_bar / x_bar) ^ 2 * (var_y / (y_bar ^ 2) + var_x / (x_bar ^ 2) - 2 * cov_xy / (x_bar * y_bar))
-          
+          # Refer to the last equation on page 6 of Ma and Ogawa 2016 (NOAA Tech Memo)
+    
           catch_rate_var[y, w, s, m, a] = unavailable_catch_rate_var[y, w, s, m, a] + observed_catch_rate_var[y, w, s, m, a]
         }
       }
@@ -272,12 +261,13 @@ for(y in 1:n_years) {
 }
 catch_rate_var[is.nan(catch_rate_var)] = 0
 catch_rate[is.nan(catch_rate)] = 0
+#added two lines below in 2025 to make sure all nans and/or NAs are assigned with 0
+catch_rate_var[is.na(catch_rate_var)] = 0
+catch_rate[is.na(catch_rate)] = 0
 
 
-
-#*********V*******Assign fishing effort into arrays and calculate catch (product of catch rate and fishing effort)
-
-effort_df = read.csv(file.path(root_dir,"01_Data", "mrip_effort_series2022finalized2.csv")) # version2 has updated PSE for waves 5&6, 2022
+#*************Assign fishing effort into arrays and calculate catch (product of catch rate and fishing effort)
+effort_df = read.csv(file.path(root_dir,"01_Data", "Fishing effort_MRIP.csv")) # This version has updated PSE for waves 5&6, 2022 and estimate status for 2022 should be final
 effort_df$Wave = ordered(effort_df$Wave, levels = c("JANUARY/FEBRUARY", "MARCH/APRIL", "MAY/JUNE", "JULY/AUGUST", "SEPTEMBER/OCTOBER", "NOVEMBER/DECEMBER")) # wave as a factor
 effort_df$Wave_num = as.numeric(effort_df$Wave) # wave numbered 1 through 6
 effort_df$mode = ifelse(effort_df$Fishing.Mode == "PRIVATE/RENTAL BOAT", 1, ifelse(effort_df$Fishing.Mode == "SHORE", 2, NA)) # matching fishing modes with previous defined indices
@@ -307,6 +297,9 @@ for(y in 1:n_years) {
 }
 effort[is.nan(effort)]=0
 effort_var[is.nan(effort_var)]=0
+# added two lines below in 2025 to avoid nan and/or NA in the effort arrays
+effort[is.na(effort)]=0
+effort_var[is.na(effort_var)]=0
 # Total catch
 
 total_catch_num = array(0, dim = c(n_years, n_waves, n_species, n_modes, n_areas))
@@ -328,7 +321,7 @@ proportion_kept[is.nan(proportion_kept)] = 0
 total_catch_num_kept = total_catch_num * proportion_kept
 total_catch_weight_kept = sweep(apply(total_catch_num_kept, c(1, 3, 4, 5), sum), 2, mean_weight_all, FUN = "*")
 
-# Checking catch disposition against Appendix Table 1c from Ma submitted manuscript
+# Checking catch disposition against Appendix Table 1c from Ma et al. submitted manuscript (2019)
 # total_catch_proportion_kept = 1 - apply(total_catch_num_kept, c(1, 3), sum, na.rm = T) / apply(total_catch_num, c(1, 3), sum, na.rm = T) # [year, species]
 total_catch_proportion_sold = 1 - apply(total_catch_num_kept, c(1, 3), sum, na.rm = T) / apply(total_catch_num, c(1, 3), sum, na.rm = T) # changed the variable ".._kept" to "_sold" by Ma in 2025
 #official_total_catch_proportion_kept = array(c(NA, 0, 0, NA, 11, 0, 100, 0, 100, 16, 15, 40, 74, 0, NA, NA, NA, NA, NA, NA,              # changed the variable ".._kept" to ".._sold" by Ma
@@ -345,10 +338,12 @@ for(s in 1:n_species) {
   lines(x = years, y = total_catch_proportion_sold[, s], col = "red")
   legend(x = "topright", col = c("black", "red"), lty = 1, legend = c("Ma et al.", "R script"), bty = "n")
 }
+# the above plots are useful when catch_type is "Total catch"
+# the kept proportion (i.e sold proportion) for waves 2&3 in 2020 (during Covid) is lacking  because the average from 2019 and 2021 (combined dispositions) was used as substitutes in 2020
 
 # Checking catch number against official values from https://www.fisheries.noaa.gov/data-tools/recreational-fisheries-statistics-queries
 
-official_catch = read.csv(file.path(root_dir,"01_Data","HMRFS catch2022f2.csv")) #f2 has updated catch and variance estimates for waves 5&6 in 2022 
+official_catch = read.csv(file.path(root_dir,"01_Data","HMRFS catch_MRIP.csv")) #This version has updated catch and variance estimates for waves 5&6 in 2022. The estimate status for 2022 should be final 
 official_catch$Total.Harvest..A.B1. = as.numeric(gsub(",", "", official_catch$Total.Harvest..A.B1.)) # remove commas from catch values
 official_catch$wave = match(official_catch$Wave, c("JANUARY/FEBRUARY", "MARCH/APRIL", "MAY/JUNE", "JULY/AUGUST", "SEPTEMBER/OCTOBER", "NOVEMBER/DECEMBER")) # convert wave to wave number
 
@@ -392,7 +387,7 @@ for(s in 1:n_species) {
   lines(x = years, y = apply(total_catch_num[, , s, , ], c(1), sum), col = "red")
   legend(x = "topright", col = c("black", "red"), lty = 1, legend = c("MRIP query", "R Script"), bty = "n")
 }
-# There is an instance of two rows for the same specie within a single trip (ID_CODE = 1701620190402001, SP_CODE = 8835360704). The below code counts both rows, each with 7 fish.
+
 # Checking catch number variance against https://www.fisheries.noaa.gov/data-tools/recreational-fisheries-statistics-queries
 
 sqrt(apply(total_catch_num_var_annual, c(1, 2), sum, na.rm = T)) / sqrt(official_catch_num_var)
@@ -400,23 +395,23 @@ sqrt(apply(total_catch_num_var_annual, c(1, 2), sum, na.rm = T)) / sqrt(official
 
 
 
-
-# *******VI*******Wave-level CPUE smoothing
+# -------------------- Section 5: Temporal Smoothing -----------------
+# ************Wave-level CPUE smoothing
 
 n_year_waves = n_years * n_waves
 
 # in the second-to-last dimension, index 1 = ocean (> 3 mi), index 2 = ocean (<= 3 mi), and index 3 = aggregated across the two areas; there is no deep 7 catch from inland fishing
 # in the last dimension, index 1 = Moving average, index 2 = Kalman
-# in total, smoothing is only applied to private boat fishing in the ocean (<= 3 mi) and ocean (> 3 mi) fishing areas since these contribute the vast majority of deep 7 catch
+# in total (without separation of areas for boat), smoothing is only applied to private boat fishing in the ocean (<= 3 mi) and ocean (> 3 mi) fishing areas since these contribute the vast majority of deep 7 catch
 # smoothing is not applied to data from the shore fishing mode in any fishing area
 wave_smoothed_catch_rate = array(0, dim = c(n_year_waves, n_species, 3, 2))
 wave_smoothed_total_catch = array(0, dim = c(n_year_waves, n_species, 3, 2))
 cpue_raw = array(0, dim=c(n_year_waves, n_species))
 cpue_raw2 = array(0, dim=c(n_year_waves, n_species))
 n_smooth_waves = 6 # number of waves on either side to smooth across for the moving average
-q =0.01 # random walk parameter for Kalman filter 0.002 didn't work well when q=0 cpue would be flat
-h =0.01 # observation process parameter for Kalman filter When= 0 the smoothed lines follow the original lines
- 
+q =0.01 # random walk parameter for Kalman filter
+h =0.01 # observation process parameter for Kalman filter
+# the smoothed catch rate estimates from Kalman filer are insensitive to the absolute q and h values when they are equal 
 total_caught = observed_total_caught + unavailable_total_caught # may keep them separately with "num_trips" and "anglers_by_trip"
 
 # first dimension in these arrays is the sequential waves in order from oldest to most recent
@@ -450,17 +445,15 @@ for(s in 1:n_species) {
     wave_smoothed_total_catch[, s, a, 1] = wave_smoothed_catch_rate[, s, a, 1] * effort_yw[, 1, a]
   }
   cpue_raw[, s] = apply(total_caught_yw[, s, 1, 1:2, ], c(1), sum) / apply(anglers_by_trip_yw[, 1, 1:2, ], c(1), sum)
-  # Deep7 catch only in area 1 and 2 but not in 3=inland
+  # Deep7 catch only in area 1 and 2, not in 3=inland
   cpue_raw2[, s] = apply(total_observed_yw[, s, 1, 1:2, ], c(1), sum) / apply(anglers_by_trip_yw[, 1, 1:2, ], c(1), sum) + apply(total_unavailable_yw[, s, 1, 1:2, ], c(1), sum) / apply(num_trips_yw[, 1, 1:2], c(1), sum)
-  # separate two types of catch rate
+  # cpue_raw2 is more accurate than cpue_raw
   cpue_raw2[104, s]=(cpue_raw2[98, s]+cpue_raw2[92,s])/2
   cpue_raw2[105, s]=(cpue_raw2[99, s]+cpue_raw2[93,s])/2
   cpues = cpue_raw2[,s]
-#  cpues = apply(total_observed_yw[, s, 1, 1:2, ], c(1), sum) / apply(anglers_by_trip_yw[, 1, 1:2, ], c(1), sum) + apply(total_unavailable_yw[, s, 1, 1:2, ], c(1), sum) / apply(num_trips_yw[, 1, 1:2], c(1), sum)
- # cpues = apply(total_caught_yw[, s, 1, 1:2, ], c(1), sum) / apply(anglers_by_trip_yw[, 1, 1:2, ], c(1), sum)
   wave_smoothed_catch_rate[, s, 3, 2] = KFS(SSModel(cpues ~ SSMtrend(1, Q=q), H=h))$alphahat #3 for comibned area and 2 for Kalman
   wave_smoothed_total_catch[, s, 3, 2] = wave_smoothed_catch_rate[, s, 3, 2] * sapply(1:n_year_waves, function(f) sum(effort_yw[f, 1, 1:2]))
-#*** capture these wavely results*** 3=combined area and 2 for Kalman filter AND in each of n_year_waves, summing the fishing effort and federa and state waters
+#*** capture these wavely results*** 3=combined area and 2 for Kalman filter AND in each of n_year_waves, summing the fishing effort and federal and state waters
   # but catch of opakapaka from shore in 2009 is not included
   
   for(a in 1:(n_areas - 1)) {
@@ -485,7 +478,7 @@ unaccounted_total_catch = apply(total_catch_num[, , , 2,], c(1, 3), sum, na.rm =
 ma_smoothed_catch_plot = year_smoothed_total_catch[, , 3, 1] + unaccounted_total_catch
 ma_smoothed_by_area_catch_plot = apply(year_smoothed_total_catch[, , 1:2, 1], c(1, 2), sum) + unaccounted_total_catch
 kalman_smoothed_catch_plot = year_smoothed_total_catch[, , 3, 2] + unaccounted_total_catch #3 for all areas and 2 for smoother2
-#capture the above results (20X7 array), don't need to define the array because year_moothed_total_catch is defined as an array
+#capture the above results (20X7 array), don't need to define the array because year_smoothed_total_catch is defined as an array
 #********#
 
 kalman_smoothed_by_area_catch_plot = apply(year_smoothed_total_catch[, , 1:2, 2], c(1, 2), sum) + unaccounted_total_catch
@@ -503,13 +496,11 @@ for(s in 1:n_species) {
   lines(x = years, y = apply(total_catch_num[, , s, , ], c(1), sum), col = "black")
   legend(x = "topright", col = c("red", "red", "green", "green", "black"), lty = c("solid", "dashed", "solid", "dashed", "solid"), legend = c("Moving average", "Moving average by area", "Kalman", "Kalman by area", "Original"), bty = "n")
 }
+# Smoothing without fishing area separation is only applied to fishing in the ocean (<= 3 mi) and ocean (> 3 mi) for private boats
 
 
-
-
-
-
-#*********VII***********capture  catch estimates by year, total_catch_num[year, wave, species, mode, areas]
+# --------------- Section 6: Catch number capture and converting catch number to catch weight and adjustments for fishing effort---------------------
+#*******************capture  catch estimates by year, or by year_wave
 year_totalcatch = array(0, dim=c(n_years, n_species))# create and capture this array
 for(s in 1:n_species) {
   # y_max = max(c(ma_smoothed_catch_plot[, s], ma_smoothed_by_area_catch_plot[, s], kalman_smoothed_catch_plot[, s], kalman_smoothed_by_area_catch_plot[, s], official_catch_num[, s]))
@@ -521,7 +512,6 @@ for(s in 1:n_species) {
   # y_max = max(c(ma_smoothed_catch_plot[, s], ma_smoothed_by_area_catch_plot[, s], kalman_smoothed_catch_plot[, s], kalman_smoothed_by_area_catch_plot[, s], official_catch_num[, s]))
   year_totalcatchboat[,s] = apply(total_catch_num[, , s, 1, ], c(1), sum) #***capture these results for double check****
 }
-
 
 
 #capture original catch and variance by wave
@@ -559,45 +549,51 @@ for(s in 1:n_species) {
   yearwave_totalcatchboat_num_var[,s] = apply(total_catch_num_var_yw[, s,1 , ], c(1), sum)
   }
 
+#******************catch number to weight and adjusted by multiplies and capture output in the output file directory
 
-
-
-
-#*********VIII***********catch weight number to weight and adjusted by multiplies and capture output in the output file directory
-
-#write_csv(Year.Samples.Table,file.path(root_dir,"03_Outputs","Year.Samples.Table.csv"))
 write.csv(as.data.frame(wave_smoothed_catch_rate[,,3,2]), file.path(root_dir, "03_outputs","CPUE_Kalmansmoothed.csv"))
-write.csv(as.data.frame(kalman_smoothed_catch_plot),file.path(root_dir, "03_outputs", "SmoothedYearlynonsold_includeSH.csv"))
-write.csv(as.data.frame(cpue_raw2),file.path(root_dir, "03_outputs","CPUE_raw_2022complete.csv"))
-write.csv(as.data.frame(yearwave_totalcatch_num),file.path(root_dir, "03_outputs","UnsmoothedWavelynonsold_includeSH.csv"))
-
+#CPUE is for combined oceans (<=3 miles and > 3miles) without inland
+#write.csv(as.data.frame(kalman_smoothed_catch_plot),file.path(root_dir, "03_outputs", "SmoothedYearlynonsold_includeSH.csv"))
+write.csv(as.data.frame(kalman_smoothed_catch_plot),file.path(root_dir, "03_outputs", "SmoothedYearlyCatchnumber_includeSH.csv"))
+write.csv(as.data.frame(cpue_raw2),file.path(root_dir, "03_outputs","CPUE_raw.csv"))
+write.csv(as.data.frame(yearwave_totalcatch_num),file.path(root_dir, "03_outputs","UnsmoothedWavelyCatchnumber_includeSH.csv"))
 
 catchwgt = array(0, dim = c(120,7))
-#catchnum = read.csv("JSM2025SmoothedWavelynonsold_dfcompare.csv")
 catchnum <- as.data.frame(wave_smoothed_total_catch[, , 3, 2])
 df = catchnum
-#df[42,4]=df[42,4]+4269.557 
 df[42,4]=df[42,4]+unaccounted_total_catch[7,4]
-#adding catch from shore fishing, which is higher for i1 adjusted
+#adding catch from shore fishing
+# the unsmoothed wavely nonsold catch 
 modify = read.csv(file.path(root_dir, "01_Data","Multiplier.csv"))
 M1 = modify$M1
+#M1 for calibrating the phone survey fishing effort estimates
 M2 = modify$M2
+#M2 for correction in phone survey estimates in 2003-2010
 M3 = modify$M3
-meanwgt = read.csv(file.path(root_dir, "01_Data", "meanweight.csv"))
+#M3 is the proportion of pure recreational fishing trips
+meanwgt = read.csv(file.path(root_dir, "01_Data", "Meanweight.csv"))
 wgt = meanwgt$lbs
-
-for(s in 1:7) {
+if(catch_type=="Pure recreational"){
+  for(s in 1:7) {
   for(w in 1:120) {
     catchwgt[w,s] = df[w,s]*M1[w]*M2[w]*M3[w]*wgt[s]
   }
+  }}else{
+    for(s in 1:7) {
+      for(w in 1:120) {
+        catchwgt[w,s] = df[w,s]*M1[w]*M2[w]*wgt[s]
+      }
+    }
+  
 }
 dfwgt= as.data.frame(catchwgt)
 dfwgt$FY = modify$FY
 dfwgt$CY = modify$CY
-write.csv(dfwgt,file.path(root_dir, "03_Outputs","Smoothedwavelynonsold_cachweight_effortadjusted.csv"))
+write.csv(dfwgt,file.path(root_dir, "03_Outputs","SmoothedwavelyCachweight_effortadjusted.csv"))
 
 
-
+# The variance estimates of the smoothed catch rate (in the Kalman filter and smoother output) were a deterministic function of the input 
+# variance values for observation error H and process error Q
 origcatch = as.data.frame(yearwave_totalcatch_num)
 variance = as.data.frame(yearwave_totalcatch_num_var)
 
@@ -611,7 +607,7 @@ dfvar$C6=origcatch$V6
 dfvar$C7=origcatch$V7
 dfvar$FY = modify$FY
 dfvar$CY = modify$CY
-write.csv(dfvar, file.path(root_dir, "03_Outputs","dataforPSE_compare.csv"))
+write.csv(dfvar, file.path(root_dir, "03_Outputs","dataforPSE.csv"))
 
 
 
@@ -627,85 +623,6 @@ write.csv(dfvar, file.path(root_dir, "03_Outputs","dataforPSE_compare.csv"))
 
 
 
-
-
-write_csv(species_df,file.path(root_dir,"03_Outputs","SPcies.csv")) 
-write.csv(as.data.frame(wave_smoothed_total_catch[, , 3, 2]), file="SmoothedWavelynonsold_2022complete.csv")
-# 3 for all ocean areas (state and federal), 2 for Kalman filter
-write.csv(as.data.frame(cpue_raw2), file="CPUE_raw_2022complete.csv")
-write.csv(as.data.frame(cpue_raw), file="CPUE_raw_preupdate.csv")
-write.csv(as.data.frame(wave_smoothed_catch_rate), file="CPUE_smoothed.csv")
-write.csv(as.data.frame(wave_smoothed_catch_rate[,,3,2]), file="CPUE_Kalmansmoothed.csv")
-write.csv(as.data.frame(unaccounted_total_catch), file="Deep7catch_fromSH.csv")
-write.csv(as.data.frame(kalman_smoothed_catch_plot), file="SmoothedYearlynonsold_includeSH.csv")
-
-
-write.csv(as.data.frame(year_totalcatch), file="JSM2025Orig_yearlyDeep7.csv")
-write.csv(as.data.frame(year_totalcatchboat), file="JSM2025Orig_yearlyDeep7boat.csv")
-
-write.csv(as.data.frame(yearwave_totalcatch_num), file ="JSM2025unsmoothedwavelynonsold_catch.csv") #capture this one to have wave estimates!!!
-write.csv(as.data.frame(yearwave_totalcatch_num_var), file ="JSM2025variance_bywave.csv")
-write.csv(as.data.frame(yearwave_totalcatchboat_num), file ="JSM2025unsmoothedwavelynonsold_catchboat.csv") #capture this one to have wave estimates!!!
-write.csv(as.data.frame(yearwave_totalcatchboat_num_var), file ="JSM2025varianceboat_bywave.csv")
-origcatch = read.csv("JSM2025unsmoothedwavelynonsold_catch.csv")
-
-
-SmoothedCatch_bywave_dfcompare = as.data.frame(wave_smoothed_total_catch[, , 3, 2])
-SmoothedCatch_dfcompare = as.data.frame(kalman_smoothed_catch_plot)
-Orig_nonsold_dfcompare = as.data.frame(year_totalcatch)
-unacounted_SH = as.data.frame(unaccounted_total_catch)
-cpue_rawdf = as.data.frame(cpue_raw) #compare CPUE_raw with seperate "num_trips" and "anglers_by_trip" below
-cpue_rawdf2 = as.data.frame(cpue_raw2)
-write.csv(cpue_rawdf, file="CPUE_raw_include2022compare.csv")
-write.csv(SmoothedCatch_bywave_dfcompare, file="JSM2025SmoothedWavelynonsold_dfcompare.csv")
-#***The above results are the same as those from the exploration section**** The same as "SmoothedWavelynonsold_2022complete.csv"
-write.csv(SmoothedCatch_dfcompare, file="JSM2025SmoothedYearlynonsold_forcomparison.csv")
-#The above file should be the same as "SmoothedYearlynonsold_includeSH.csv"
-write.csv(unacounted_SH, file="JSM2025Deep7catch_fromSHcompare.csv")
-write.csv(Orig_nonsold_dfcompare, file="JSM2025Orig_nonsold_dfcompare.csv")
-# the file above should be the same as "JSM2025Orig_yearlyDeep7.csv"
-
-
-
-setwd("C:/Users/Hongguang.Ma/Documents/JSM2025/Nonseller_andNA_FY25report")
-catchwgt = array(0, dim = c(120,7))
-
-catchnum = read.csv("JSM2025SmoothedWavelynonsold_dfcompare.csv")
-df = catchnum[-c(1)]
-#df[42,4]=df[42,4]+4269.557 
-df[42,4]=df[42,4]+4290.693
-#adding catch from shore fishing, which is higher for i1 adjusted
-modify = read.csv("Multiplier.csv")
-M1 = modify$M1
-M2 = modify$M2
-M3 = modify$M3
-meanwgt = read.csv("meanweight.csv")
-wgt = meanwgt$lbs
-
-for(s in 1:7) {
-  for(w in 1:120) {
-    catchwgt[w,s] = df[w,s]*M1[w]*M2[w]*M3[w]*wgt[s]
-  }
-}
-dfwgt= as.data.frame(catchwgt)
-dfwgt$FY = modify$FY
-dfwgt$CY = modify$CY
-write.csv(dfwgt, file="Smoothedwavelynonsold_cachweight_effortadjusted.csv")
-
-origcatch = read.csv("JSM2025unsmoothedwavelynonsold_catch.csv")
-variance = read.csv("JSM2025variance_bywave.csv")
-
-dfvar = variance[-c(1)]
-dfvar$C1=origcatch$V1
-dfvar$C2=origcatch$V2
-dfvar$C3=origcatch$V3
-dfvar$C4=origcatch$V4
-dfvar$C5=origcatch$V5
-dfvar$C6=origcatch$V6
-dfvar$C7=origcatch$V7
-dfvar$FY = modify$FY
-dfvar$CY = modify$CY
-write.csv(dfvar, file="dataforPSE_compare.csv")
 
 
 
