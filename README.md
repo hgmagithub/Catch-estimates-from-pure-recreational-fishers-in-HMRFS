@@ -16,7 +16,7 @@ The R script was modified from Ma et al. 2023. When "catch_type" is set as "Non-
 
 a) i1-i3 files: trip profile, unavaialble catch, and available (observed) catch used to estimate catch rate and variance of catch rate
 
-b) Pure recreational fishers: ID code of pure recreational fishers in the survey data (based on 2003-2011 Access survey data 2011-2022 SAS survey data) used to filter out recreational expense fishers and part-time commercial fishers
+b) Pure recreational fishers: ID code of pure recreational fishers in the survey data (based on 2003-2011 Access survey data and 2011-2022 SAS survey data) used to filter out recreational expense fishers and part-time commercial fishers
 
 c) Fishing effort time series: the fishing effort estimates in 2003-2022 used to estimate catch (as the product of catch rate and fishing effort)
 
@@ -28,7 +28,7 @@ e) Multiplier: the adjustments for fishing effort calibration due to telphone su
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
 can be
 ## Resources
-Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings
+Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings and for the 2024 Deep7 bottomfish benchmark stock assessement
 https://github.com/hgmagithub/Non-commercial-Catch-Estimation-for-Deep7-Bottomfish-in-the-Main-Hawaiian-Islands
 
 ## Version Control Platform
