@@ -3,13 +3,13 @@
 
 
 ## Summary
-For the Deep7 bottomfish research track, adjustments were made to both catch rate and fishing effort to exclude fishing trips that were not entirely recreational/non-commercial from the HMRFS data. Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers and part-time commercial fishers was also excluded. Fishing effort estimates (derived from telephone and mail surveys) were adjusted to exclude trips from expense and part-time commercial fishers. The estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
+For the Deep7 bottomfish research track, adjustments were made to both catch rate and fishing effort to exclude fishing trips that were not entirely recreational/non-commercial from the Hawaii Marine Recreational Fishing Survey (HMRFS). Two adjustments were made during the catch rate estimation: 1) catch claimed as sold in HMRFS was excluded; and 2) catch claimed as non-sold by expense fishers and part-time commercial fishers was also excluded. Fishing effort estimates (derived from telephone and mail surveys) were adjusted to exclude trips from expense and part-time commercial fishers. The estimates from this exploration may better define the catch from fishers who do not have a commercial marine license. 
 ## Data Sources
-1) Intercept survey data (SAS data files for 2003-2022) from the Hawaii Marine Recreational Fishing Survey (HMRFS) were provided by NMFS Office of Science and Technology (OST) and Marine Recreational Information Program (MRIP)
+1) Intercept survey data (SAS data files for 2003-2022) from HMRFS were provided by NMFS Office of Science and Technology (OST) and Marine Recreational Information Program (MRIP)
 2) Fishing effort estimates were downloaded from MRIP query https://www.fisheries.noaa.gov/data-tools/recreational-fisheries-statistics-queries
-3) Coastal Household Telephone Survey (CHTS, 2003-2017) was previously downloaded from NMFS OST/MRIP
-4) Customized fishing effort estimates from CHTS with county-level fishing trip estimates was produced/provided by Rob Andrews (NMFS OST/MRIP)
-5) Access data files from HMRFS in 2003-2022 from NMFS/MRIP and Hawaii Division of Aquatic Resources
+3) Coastal Household Telephone Survey (CHTS, 2003-2017) data was previously downloaded from NMFS OST/MRIP
+4) Customized fishing effort estimates from CHTS with county-level fishing trip estimates were produced/provided by Rob Andrews (NMFS OST/MRIP)
+5) Access data files from HMRFS in 2003-2022 came from NMFS/MRIP and the Hawaii Division of Aquatic Resources
 
 ## R Script and Data Input   
 The R script was modified from Ma et al. 2023. When "catch_type" is set as "Non-sold catch', the non-commercial catch estimates presented in Ma et al. (2023) can be reproduced. The catch estimates in the current exploration are provided when catch type is set as "Pure recreational". Data type "Total catch" can be used to generate catch estimates to compare with the estimates from MRIP query. The data input includes
