@@ -7,7 +7,7 @@ For the Deep7 bottomfish research track, adjustments were made to both catch rat
 ## Data Sources
 1) Intercept survey data (SAS data files for 2003-2022) from HMRFS were provided by NMFS Office of Science and Technology (OST) and Marine Recreational Information Program (MRIP)
 2) Fishing effort estimates were downloaded from MRIP query https://www.fisheries.noaa.gov/data-tools/recreational-fisheries-statistics-queries
-3) Coastal Household Telephone Survey (CHTS, 2003-2017) SAS data files were previously downloaded from NMFS OST/MRIP
+3) SAS data files from the Coastal Household Telephone Survey (CHTS, 2003-2017) were previously downloaded from NMFS OST/MRIP
 4) Customized fishing effort estimates from CHTS with county-level fishing trip estimates were produced/provided by Rob Andrews (NMFS OST/MRIP)
 5) Access data files from HMRFS in 2003-2022 came from NMFS/MRIP and the Hawaii Division of Aquatic Resources
 
