@@ -12,7 +12,7 @@ For the Deep7 bottomfish research track, adjustments were made to both catch rat
 5) Access data files from HMRFS in 2003-2022 from NMFS/MRIP and Hawaii Division of Aquatic Resources
 
 ## R Script and Data Input   
-The R script was modified from Ma et al. 2023. When "catch_type" is set as "Non-sold catch', the non-commercial catch estimates presented in Ma et al. (2023) can be reproduced. The catch estimates in the current exploration are provided when catch type is set as "Pure recreational". The data input includes
+The R script was modified from Ma et al. 2023. When "catch_type" is set as "Non-sold catch', the non-commercial catch estimates presented in Ma et al. (2023) can be reproduced. The catch estimates in the current exploration are provided when catch type is set as "Pure recreational". Data type "Total catch" can be used to generate catch estimates comparing estimates from MRIP query. The data input includes
 
 a) i1-i3 files: trip/fisher profile (i1), unavaialble catch (i2), and available (observed) catch (i3) used to estimate catch rate and variance of catch rate
 
@@ -23,6 +23,8 @@ c) Fishing effort_MRIP: fishing effort estimates in 2003-2022 used to estimate c
 d) Mean weight: mean weight estimates for 7 bottomfish species used to convert catch number to catch weight
 
 e) Multiplier: adjustments for fishing effort calibration due to telphone survey to mail survey transition (M1), correction for an error in Maui population tally in 2003-2010 (M2), and proportion of pure recreational fishing trips (M3)
+
+f) HMRFS catch_MRIP: catch estimates (and percent standard error) queried from MRIP for comparisons with estimates from the R script
 
 ## Installing
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
