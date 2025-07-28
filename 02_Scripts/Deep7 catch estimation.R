@@ -496,7 +496,7 @@ for(s in 1:n_species) {
   lines(x = years, y = apply(total_catch_num[, , s, , ], c(1), sum), col = "black")
   legend(x = "topright", col = c("red", "red", "green", "green", "black"), lty = c("solid", "dashed", "solid", "dashed", "solid"), legend = c("Moving average", "Moving average by area", "Kalman", "Kalman by area", "Original"), bty = "n")
 }
-# Smoothing without fishing area separation is only applied to fishing in the ocean (<= 3 mi) and ocean (> 3 mi) for private boats
+# Smoothing without fishing area separation is only applied to fishing in the ocean <= 3 miles from shore and ocean >3 miles from shore (for private boats)
 
 
 # --------------- Section 6: Catch number capture and converting catch number to catch weight and adjustments for fishing effort---------------------
