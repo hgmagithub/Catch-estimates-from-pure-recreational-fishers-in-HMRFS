@@ -454,7 +454,7 @@ for(s in 1:n_species) {
   wave_smoothed_catch_rate[, s, 3, 2] = KFS(SSModel(cpues ~ SSMtrend(1, Q=q), H=h))$alphahat #3 for comibned area and 2 for Kalman
   wave_smoothed_total_catch[, s, 3, 2] = wave_smoothed_catch_rate[, s, 3, 2] * sapply(1:n_year_waves, function(f) sum(effort_yw[f, 1, 1:2]))
 #*** capture these wavely results*** 3=combined area and 2 for Kalman filter AND in each of n_year_waves, summing the fishing effort and federal and state waters
-  # but catch of opakapaka from shore in 2009 is not included
+  # catch of opakapaka from shore in 2009 is not included yet at this stage
   
   for(a in 1:(n_areas - 1)) {
     cpues = apply(total_caught_yw[, s, 1, a, ], c(1), sum) / apply(anglers_by_trip_yw[, 1, a, ], c(1), sum)
