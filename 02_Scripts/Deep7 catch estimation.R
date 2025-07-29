@@ -593,7 +593,7 @@ write.csv(dfwgt,file.path(root_dir, "03_Outputs","SmoothedwavelyCachweight_effor
 
 
 # The variance estimates of the smoothed catch rate (in the Kalman filter and smoother output) were a deterministic function of the input variance values for observation error H and process error Q
-# Thus, the percent standard error (PSE) from the unsmoothed catch estimates is calculated and used                                                               
+# Thus, variances from unsmoothed catch estimates were captured and used to calcuate percent standard error (similar to coefficient of variation)                                                               
 origcatch = as.data.frame(yearwave_totalcatch_num)
 variance = as.data.frame(yearwave_totalcatch_num_var)
 
