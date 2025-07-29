@@ -251,7 +251,7 @@ for(y in 1:n_years) {
           observed_catch_rate = (sum(observed_total_caught[y, w, s, m, a, ]) / num_trips[y, w, m, a]) / mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) 
           #the catch rate of observed catch is ratio of two means and is plugged in for the variance calculation below - Ma comment in 2025 
           observed_catch_rate_var[y, w, s, m, a] = 1 / (num_trips[y, w, m, a] * mean(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) ^ 2) * (var(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]]) + observed_catch_rate ^ 2 * var(anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]) - 2 * observed_catch_rate*cov(observed_caught_by_trip[y, w, s, m, a, domain_trips[y, w, m, a, ]], anglers_by_trip[y, w, m, a, domain_trips[y, w, m, a, ]]))
-          # Refer to the last equation on page 6 of Ma and Ogawa 2016 (NOAA Tech Memo)
+          # Refer to equations on page 6 of Ma and Ogawa 2016 (NOAA Tech Memo)
     
           catch_rate_var[y, w, s, m, a] = unavailable_catch_rate_var[y, w, s, m, a] + observed_catch_rate_var[y, w, s, m, a]
         }
