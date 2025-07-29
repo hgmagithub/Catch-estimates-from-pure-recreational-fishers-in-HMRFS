@@ -13,13 +13,13 @@ i1 = read.sas7bdat(file.path(root_dir, "01_Data", "i1.sas7bdat"))
 observed_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i3.sas7bdat"))
 unavailable_catch = read.sas7bdat(file.path(root_dir, "01_Data", "i2.sas7bdat")) 
 nonsellers = read.sas7bdat(file.path(root_dir, "01_Data", "Nonsellers.sas7bdat"))
-#read the SAS file (52758 ID_CODEs) for fishers whose didn't not ever sell catch (52702) or cannot be identified as selling (56)
+#read the SAS file (52758 ID_CODEs) for fishers who didn't not ever sell catch (52702) or cannot be identified as selling (56)
 
 catch_type <- "Pure recreational"
 #default is "Pure recreational" for Deep7 research track, can be assigned as "Non-sold catch" for 2024 stock assessment or "Total catch" for comparing with MRIP query
 if(catch_type=="Pure recreational") {
   i1 <- i1[i1$ID_CODE %in% nonsellers$ID_CODE,] # records from 59080 to 52758
-  # Only trip and fisher profile data are kept from fisher who did not ever sell any catch
+  # Only trip and fisher profile data are kept from fishers who did not ever sell any catch
 }
 if(catch_type=="Non-sold catch"){
   observed_catch <- observed_catch[observed_catch$DISP3 %in% c(3,4,6,7,8,9,0),]
