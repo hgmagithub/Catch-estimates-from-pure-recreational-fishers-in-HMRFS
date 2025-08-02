@@ -28,6 +28,7 @@ f) HMRFS catch_MRIP: catch estimates (and percent standard error) queried from M
 
 ## Installing
 R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
+
 ## Resources
 Link to HMRFS survey data https://drive.google.com/drive/folders/1K8TpVk9sllgyhfd2VnX5WWBJgN1fc2fU
 
@@ -35,9 +36,6 @@ Ma, H., Matthews, T., Syslo, J., Ducharme-Barth, N. 2023. Non-commercial Catch E
 
 Github repository for the non-commercial catch estimates presented at the 2023 Joint Statitical Meetings and for the 2024 Deep7 bottomfish benchmark stock assessement
 https://github.com/hgmagithub/Non-commercial-Catch-Estimation-for-Deep7-Bottomfish-in-the-Main-Hawaiian-Islands
-
-## Version Control Platform
-- Git
 
 ## License
 See the [LICENSE.md](./LICENSE.md) for details
