@@ -27,7 +27,7 @@ e) Multiplier: adjustments for fishing effort calibration due to telphone survey
 f) HMRFS catch_MRIP: catch estimates (and percent standard error) queried from MRIP for comparisons with estimates from the R script
 
 ## Installing
-R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and smoother).
+R packages including "sas7bdat" (to read SAS data files), "this.path" (file management), "zoo" (moving average), and "KFAS" (Kalman Filter and Smoother).
 
 ## Resources
 Link to HMRFS survey data https://drive.google.com/drive/folders/1K8TpVk9sllgyhfd2VnX5WWBJgN1fc2fU
